@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tech Concepts Explained - 35 Core Concepts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        :root {
+            --primary: #4f46e5;
+            --primary-dark: #4338ca;
+            --secondary: #7c3aed;
+            --accent: #10b981;
+            --background: #0f172a;
+            --surface: #1e293b;
+            --surface-light: #334155;
+            --text: #f1f5f9;
+            --text-secondary: #cbd5e1;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: var(--text);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .loading {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            z-index: 2000;
+        }
+        
+        .loading.hidden {
+            display: none;
+        }
+        
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 3px solid var(--surface-light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+        
+        .container.loaded {
+            opacity: 1;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            animation: fadeInDown 0.8s ease;
+        }
+        
+        h1 {
+            font-size: 3em;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            color: var(--text-secondary);
+            margin-bottom: 10px;
+        }
+        
+        .data-status {
+            font-size: 0.9em;
+            color: var(--accent);
+            margin: 10px 0;
+            padding: 10px;
+            background: var(--surface);
+            border-radius: 10px;
+            display: inline-block;
+        }
+        
+        .search-bar {
+            max-width: 600px;
+            margin: 0 auto 40px;
+            position: relative;
+            animation: fadeInUp 0.8s ease;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 16px;
+            background: var(--surface);
+            border: 2px solid var(--surface-light);
+            border-radius: 50px;
+            color: var(--text);
+            transition: all 0.3s ease;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 20px rgba(79, 70, 229, 0.3);
+        }
+        
+        .categories {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 30px;
+            animation: fadeIn 1s ease;
+        }
+        
+        .category-btn {
+            padding: 8px 20px;
+            background: var(--surface);
+            border: 2px solid var(--surface-light);
+            border-radius: 25px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+        }
+        
+        .category-btn:hover,
+        .category-btn.active {
+            background: var(--primary);
+            border-color: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(79, 70, 229, 0.4);
+        }
+        
+        .concepts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 40px;
+        }
+        
+        .concept-card {
+            background: var(--surface);
+            border: 1px solid var(--surface-light);
+            border-radius: 15px;
+            padding: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: fadeInUp 0.5s ease;
+        }
+        
+        .concept-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+        }
+        
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(79, 70, 229, 0.3);
+            border-color: var(--primary);
+        }
+        
+        .concept-card:hover::before {
+            transform: translateX(0);
+        }
+        
+        .concept-card.viewed {
+            border-color: var(--accent);
+        }
+        
+        .concept-card.viewed::after {
+            content: '✓';
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            color: var(--accent);
+            font-size: 1.2em;
+        }
+        
+        .concept-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--text);
+        }
+        
+        .concept-preview {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+            line-height: 1.5;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .concept-tag {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            padding: 4px 10px;
+            border-radius: 15px;
+            font-size: 0.75em;
+            margin-top: 10px;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .modal-content {
+            position: relative;
+            background: var(--surface);
+            max-width: 900px;
+            max-height: 90vh;
+            margin: 5vh auto;
+            padding: 40px;
+            border-radius: 20px;
+            overflow-y: auto;
+            animation: slideIn 0.4s ease;
+        }
+        
+        .close-btn {
+            position: sticky;
+            top: -20px;
+            float: right;
+            background: var(--surface-light);
+            border: none;
+            color: var(--text);
+            font-size: 30px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            line-height: 1;
+        }
+        
+        .close-btn:hover {
+            background: var(--primary);
+            transform: rotate(90deg);
+        }
+        
+        .modal-title {
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .modal-explanation {
+            line-height: 1.8;
+            color: var(--text);
+            font-size: 1.05em;
+        }
+        
+        .modal-explanation h2 {
+            color: var(--primary);
+            margin: 30px 0 15px 0;
+            font-size: 1.5em;
+        }
+        
+        .modal-explanation h3 {
+            color: var(--secondary);
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+        
+        .modal-explanation strong {
+            color: var(--accent);
+        }
+        
+        .modal-explanation p {
+            margin: 15px 0;
+        }
+        
+        .modal-explanation ol,
+        .modal-explanation ul {
+            margin: 15px 0;
+            padding-left: 30px;
+        }
+        
+        .modal-explanation li {
+            margin: 10px 0;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 40px;
+            margin: 40px 0;
+            padding: 20px;
+            background: var(--surface);
+            border-radius: 15px;
+            animation: fadeIn 1.2s ease;
+        }
+        
+        .stat-item {
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label {
+            color: var(--text-secondary);
+            font-size: 0.9em;
+        }
+        
+        .load-file-btn {
+            display: inline-block;
+            margin: 20px auto;
+            padding: 15px 30px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            border: none;
+            border-radius: 25px;
+            color: white;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .load-file-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(79, 70, 229, 0.4);
+        }
+        
+        .file-input {
+            display: none;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2em;
+            }
+            
+            .concepts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .modal-content {
+                margin: 10px;
+                padding: 20px;
+            }
+            
+            .stats {
+                flex-direction: column;
+                gap: 20px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading" id="loading">
+        <div class="loading-spinner"></div>
+        <p>Loading concept data...</p>
+    </div>
+    
+    <div class="container" id="container">
+        <header>
+            <h1>🚀 Tech Concepts Explained</h1>
+            <p class="subtitle">35 Core Tech Concepts in Simple Language</p>
+            <div class="data-status" id="dataStatus">
+                ✅ All 35 concepts loaded
+            </div>
+            <button class="load-file-btn" onclick="document.getElementById('fileInput').click()">
+                📁 Load Custom JSON File (Optional)
+            </button>
+            <input type="file" id="fileInput" class="file-input" accept=".json">
+        </header>
+        
+        <div class="search-bar">
+            <input type="text" class="search-input" id="searchInput" placeholder="Search concepts... e.g., Cloud, GPU, AI">
+        </div>
+        
+        <div class="categories">
+            <button class="category-btn active" data-category="all">All</button>
+            <button class="category-btn" data-category="infrastructure">Infrastructure</button>
+            <button class="category-btn" data-category="computing">Computing</button>
+            <button class="category-btn" data-category="ai">AI & Data</button>
+            <button class="category-btn" data-category="networking">Networking</button>
+            <button class="category-btn" data-category="development">Development</button>
+        </div>
+        
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-number" id="totalConcepts">35</div>
+                <div class="stat-label">Total Concepts</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="viewedConcepts">0</div>
+                <div class="stat-label">Learned</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-number" id="progress">0%</div>
+                <div class="stat-label">Progress</div>
+            </div>
+        </div>
+        
+        <div class="concepts-grid" id="conceptsGrid"></div>
+    </div>
+    
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <button class="close-btn" id="closeBtn">&times;</button>
+            <h2 class="modal-title" id="modalTitle"></h2>
+            <div class="modal-explanation" id="modalExplanation"></div>
+        </div>
+    </div>
+    
+    <script>
+        // GitHub Gist URL for the JSON data - using CORS-friendly URL
+        const GIST_URL = 'https://gist.githubusercontent.com/zixinlu12/b536678a39ecd4f10efa3073c127cb3c/raw/24f2869200fe711d014809afb4169dde378351d3/tech_explanations_chinese_v2.json';
+        
+        // This will be populated with full data from GitHub
+        let concepts = [];
+        let viewedConcepts = new Set();
+        
+        // Function to load full explanations from GitHub Gist
+        async function loadFullExplanations() {
+            try {
+                // Show loading state
+                const dataStatus = document.getElementById('dataStatus');
+                dataStatus.innerHTML = '⏳ Loading concepts from GitHub...';
+                
+                // Fetch data from GitHub Gist with CORS mode
+                const response = await fetch(GIST_URL, {
+                    method: 'GET',
+                    headers: {
+                        'Accept': 'application/json',
+                    }
+                });
+                
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                // Process the data
+                concepts = data.map(item => {
+                    let category = 'infrastructure';
+                    const name = item.concept.toLowerCase();
+                    
+                    if (['gpu', 'cpu', 'ram', 'edge computing', 'quantum computing', 'distributed computing'].some(c => name.includes(c.toLowerCase()))) {
+                        category = 'computing';
+                    } else if (['machine learning', 'artificial intelligence', 'neural networks', 'natural language processing', 'computer vision', 'data mining', 'big data'].some(c => name.includes(c.toLowerCase()))) {
+                        category = 'ai';
+                    } else if (['5g', 'iot', 'cybersecurity'].some(c => name.includes(c.toLowerCase()))) {
+                        category = 'networking';
+                    } else if (['api', 'virtual reality', 'augmented reality', 'devops', 'ci/cd', 'agile', 'scrum'].some(c => name.includes(c.toLowerCase()))) {
+                        category = 'development';
+                    }
+                    
+                    return {
+                        concept: item.concept,
+                        explanation: item.explanation,
+                        category: category
+                    };
+                });
+                
+                // Update status
+                dataStatus.innerHTML = `✅ Loaded ${concepts.length} concepts from GitHub`;
+                
+                // Display the concepts
+                displayConcepts();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Error loading from GitHub:', error);
+                document.getElementById('dataStatus').innerHTML = '⚠️ CORS error - Please use the file upload option or host this on a server';
+                
+                // Load comprehensive fallback data
+                loadFallbackData();
+            }
+        }
+        
+        // Comprehensive fallback function with all 35 concept previews
+        function loadFallbackData() {
+            // Complete fallback data with all 35 concepts
+            concepts = [
+                { concept: "Cloud", explanation: "Think of 'the cloud' like a giant, invisible storage facility and workspace that you can access from anywhere. The cloud is simply other people's computers – but really powerful ones – that you can use over the internet.", category: "infrastructure" },
+                { concept: "GPU", explanation: "A GPU (Graphics Processing Unit) is like a specialized artist in your computer whose main job is to create and display all the visual things you see on your screen.", category: "computing" },
+                { concept: "CPU", explanation: "Think of a CPU (Central Processing Unit) as the brain of your computer – it's the main thinking center that makes all the decisions and does all the mental work.", category: "computing" },
+                { concept: "RAM", explanation: "RAM (Random Access Memory) is your computer's desk workspace. Just like you need a clear desk to spread out papers and work on projects, your computer needs RAM to handle programs and files you're currently using.", category: "computing" },
+                { concept: "SSD", explanation: "An SSD (Solid State Drive) is like a high-tech filing cabinet that stores all your computer's information – your photos, documents, programs, and even the operating system.", category: "infrastructure" },
+                { concept: "Edge Computing", explanation: "Edge computing is like choosing a nearby pizza shop instead of one across town – it brings the 'kitchen' (computer processing) closer to where you need it.", category: "computing" },
+                { concept: "Quantum Computing", explanation: "A quantum computer is like having a magical librarian who can read ALL the books in the library simultaneously and instantly know which ones contain the answer you're looking for.", category: "computing" },
+                { concept: "Distributed Computing", explanation: "Distributed computing is like having a massive jigsaw puzzle that would take you months to complete alone, so you invite 20 friends over and give each person a section to work on.", category: "computing" },
+                { concept: "Virtualization", explanation: "Virtualization is like dividing a large apartment building into separate apartments where different families live completely independently.", category: "infrastructure" },
+                { concept: "Containerization (Docker)", explanation: "Containerization works like packing your belongings into standardized boxes when moving – each container holds specific items and can be easily moved from place to place.", category: "infrastructure" },
+                { concept: "Machine Learning", explanation: "Machine Learning is like teaching a child to recognize different dog breeds by showing them hundreds of photos until they learn to identify breeds on their own.", category: "ai" },
+                { concept: "API", explanation: "Think of an API like a waiter at a restaurant – you tell the waiter what you want, and the waiter goes to the kitchen, gets your order prepared, and brings it back to you.", category: "development" },
+                { concept: "Blockchain", explanation: "Blockchain is like a notebook that's shared among a group of friends with special rules – everyone has a copy, entries can't be erased, and everyone must agree before new information is added.", category: "infrastructure" },
+                { concept: "5G", explanation: "5G is like upgrading from a narrow country road to a superhighway – it's the fifth generation of wireless technology that makes internet connections much faster.", category: "networking" },
+                { concept: "IoT (Internet of Things)", explanation: "IoT is like giving your household items their own cell phones so your coffee maker can talk to your alarm clock and your refrigerator can send you shopping lists.", category: "networking" },
+                { concept: "Big Data", explanation: "Big Data is like being the librarian of the world's largest library that receives millions of new books, photos, and documents every single day from around the globe.", category: "ai" },
+                { concept: "Artificial Intelligence", explanation: "AI is like creating a digital 'brain' that can learn patterns and make decisions by studying lots of examples, just like a child learning about the world.", category: "ai" },
+                { concept: "Cryptocurrency", explanation: "Cryptocurrency is digital money that exists only on computers – like having coins and bills that live entirely in the digital world.", category: "infrastructure" },
+                { concept: "Virtual Reality", explanation: "VR is like having a magic window that transports you into completely different worlds through special goggles.", category: "development" },
+                { concept: "Augmented Reality", explanation: "AR is like wearing magical glasses that can add invisible information to everything you see in the real world.", category: "development" },
+                { concept: "Cybersecurity", explanation: "Cybersecurity is like having a team of digital bodyguards working 24/7 to protect your electronic devices and online information.", category: "networking" },
+                { concept: "Kubernetes", explanation: "Kubernetes is like having the world's smartest building manager who automatically handles all the complex tasks of running a massive apartment complex.", category: "infrastructure" },
+                { concept: "DevOps", explanation: "DevOps is like breaking down the wall between a restaurant's kitchen and dining room so they work as one team.", category: "development" },
+                { concept: "Microservices", explanation: "Microservices is like choosing to build a food court with specialized vendors instead of one massive kitchen that handles everything.", category: "infrastructure" },
+                { concept: "Neural Networks", explanation: "Neural networks are like your brain's digital cousin – a computer program designed to recognize patterns by mimicking how our brains work.", category: "ai" },
+                { concept: "Natural Language Processing", explanation: "NLP is like having a really good translator who helps computers understand and work with human language.", category: "ai" },
+                { concept: "Computer Vision", explanation: "Computer vision is teaching computers to 'see' and understand images and videos the same way humans do naturally.", category: "ai" },
+                { concept: "Data Mining", explanation: "Data mining is like being a gold prospector, but instead of sifting through dirt to find gold nuggets, you're sifting through information to find valuable insights.", category: "ai" },
+                { concept: "SaaS", explanation: "SaaS is like Netflix for business software – you stream/rent the tools you need instead of buying and installing them.", category: "infrastructure" },
+                { concept: "PaaS", explanation: "PaaS is like renting a fully-equipped commercial kitchen where you just bring your recipes and ingredients to create your dishes.", category: "infrastructure" },
+                { concept: "IaaS", explanation: "IaaS is like renting office space that comes with electricity, plumbing, and security already installed, but for computer infrastructure.", category: "infrastructure" },
+                { concept: "Serverless", explanation: "Serverless is like calling a personal chef who shows up when you need them instead of owning a restaurant that runs 24/7.", category: "infrastructure" },
+                { concept: "CI/CD", explanation: "CI/CD is like upgrading your bakery to a modern assembly line with quality checkpoints at every step.", category: "development" },
+                { concept: "Agile", explanation: "Agile is like planning a vacation flexibly, adapting as you go, rather than scheduling every detail months in advance.", category: "development" },
+                { concept: "Scrum", explanation: "Scrum is like cooking a holiday dinner by breaking it into manageable chunks and getting everyone involved with specific roles.", category: "development" }
+            ];
+            
+            displayConcepts();
+            updateStats();
+        }
+        
+        // File upload handler
+        document.getElementById('fileInput').addEventListener('change', async function(e) {
+            const file = e.target.files[0];
+            if (file && file.type === 'application/json') {
+                try {
+                    const text = await file.text();
+                    const data = JSON.parse(text);
+                    
+                    // Process uploaded JSON data
+                    concepts = data.map(item => {
+                        let category = 'infrastructure';
+                        const name = item.concept.toLowerCase();
+                        
+                        if (['gpu', 'cpu', 'ram', 'edge computing', 'quantum computing', 'distributed computing'].some(c => name.includes(c.toLowerCase()))) {
+                            category = 'computing';
+                        } else if (['machine learning', 'artificial intelligence', 'neural networks', 'natural language processing', 'computer vision', 'data mining', 'big data'].some(c => name.includes(c.toLowerCase()))) {
+                            category = 'ai';
+                        } else if (['5g', 'iot', 'cybersecurity'].some(c => name.includes(c.toLowerCase()))) {
+                            category = 'networking';
+                        } else if (['api', 'virtual reality', 'augmented reality', 'devops', 'ci/cd', 'agile', 'scrum'].some(c => name.includes(c.toLowerCase()))) {
+                            category = 'development';
+                        }
+                        
+                        return {
+                            concept: item.concept,
+                            explanation: item.explanation,
+                            category: category
+                        };
+                    });
+                    
+                    displayConcepts();
+                    updateStats();
+                    
+                    document.getElementById('dataStatus').innerHTML = `✅ Loaded ${concepts.length} concepts from file`;
+                } catch (error) {
+                    alert('Error loading JSON file: ' + error.message);
+                }
+            }
+        });
+        
+        // Display concepts
+        function displayConcepts(filter = 'all', searchTerm = '') {
+            const grid = document.getElementById('conceptsGrid');
+            grid.innerHTML = '';
+            
+            let filteredConcepts = concepts;
+            
+            if (filter !== 'all') {
+                filteredConcepts = concepts.filter(c => c.category === filter);
+            }
+            
+            if (searchTerm) {
+                filteredConcepts = filteredConcepts.filter(c => 
+                    c.concept.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                    c.explanation.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            }
+            
+            filteredConcepts.forEach((concept, index) => {
+                const card = document.createElement('div');
+                card.className = 'concept-card';
+                if (viewedConcepts.has(concept.concept)) {
+                    card.classList.add('viewed');
+                }
+                card.style.animationDelay = `${index * 0.05}s`;
+                
+                // Extract preview text
+                let preview = concept.explanation.substring(0, 150);
+                preview = preview.replace(/[#*\n\\]/g, ' ').trim() + '...';
+                
+                card.innerHTML = `
+                    <div class="concept-title">${concept.concept}</div>
+                    <div class="concept-preview">${preview}</div>
+                    <span class="concept-tag">${getCategoryName(concept.category)}</span>
+                `;
+                
+                card.addEventListener('click', () => {
+                    showModal(concept);
+                    if (!viewedConcepts.has(concept.concept)) {
+                        viewedConcepts.add(concept.concept);
+                        card.classList.add('viewed');
+                        updateStats();
+                    }
+                });
+                
+                grid.appendChild(card);
+            });
+        }
+        
+        // Get category name
+        function getCategoryName(category) {
+            const names = {
+                'infrastructure': 'Infrastructure',
+                'computing': 'Computing',
+                'ai': 'AI & Data',
+                'networking': 'Networking',
+                'development': 'Development'
+            };
+            return names[category] || 'Other';
+        }
+        
+        // Show modal
+        function showModal(concept) {
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modalTitle');
+            const modalExplanation = document.getElementById('modalExplanation');
+            
+            modalTitle.textContent = concept.concept;
+            
+            // Format explanation text
+            let formattedExplanation = concept.explanation;
+            
+            // Convert Markdown to HTML
+            formattedExplanation = formattedExplanation
+                .replace(/^## (.+)$/gm, '<h2>$1</h2>')
+                .replace(/^### (.+)$/gm, '<h3>$1</h3>')
+                .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\n\n/g, '</p><p>')
+                .replace(/^\d+\. (.+)$/gm, '<li>$1</li>')
+                .replace(/^- (.+)$/gm, '<li>$1</li>');
+            
+            formattedExplanation = '<p>' + formattedExplanation + '</p>';
+            
+            modalExplanation.innerHTML = formattedExplanation;
+            
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        }
+        
+        // Close modal
+        function closeModal() {
+            const modal = document.getElementById('modal');
+            modal.style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+        
+        // Update stats
+        function updateStats() {
+            document.getElementById('totalConcepts').textContent = concepts.length;
+            document.getElementById('viewedConcepts').textContent = viewedConcepts.size;
+            const progress = Math.round((viewedConcepts.size / concepts.length) * 100);
+            document.getElementById('progress').textContent = progress + '%';
+        }
+        
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const activeCategory = document.querySelector('.category-btn.active').dataset.category;
+                displayConcepts(activeCategory, e.target.value);
+            });
+            
+            // Category filter
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    displayConcepts(btn.dataset.category, document.getElementById('searchInput').value);
+                });
+            });
+            
+            // Modal close
+            document.getElementById('closeBtn').addEventListener('click', closeModal);
+            document.getElementById('modal').addEventListener('click', (e) => {
+                if (e.target.id === 'modal') {
+                    closeModal();
+                }
+            });
+            
+            // ESC key
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    closeModal();
+                }
+            });
+        }
+        
+        // Initialize app
+        async function initApp() {
+            setupEventListeners();
+            await loadFullExplanations();
+            
+            setTimeout(() => {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('container').classList.add('loaded');
+            }, 500);
+        }
+        
+        // Start app
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
